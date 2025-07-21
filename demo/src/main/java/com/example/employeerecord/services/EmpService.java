@@ -7,7 +7,8 @@ import java.util.List;
 
     public interface EmpService {
 
-        EmployeeDto CreateEmployee(Employees employee);
+
+        EmployeeDto CreateEmployee(EmployeeDto employee);
 
 
         EmployeeDto getEmployeeById(Long empId);
@@ -17,6 +18,8 @@ import java.util.List;
         String deleteEmployee(Long empId);
         List<EmployeeDto> fetchAllEmployee();
 
+
+        EmployeeDto assignProject(Long empId, Long projId);
     }
 
 

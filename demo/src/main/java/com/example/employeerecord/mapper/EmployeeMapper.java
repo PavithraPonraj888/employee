@@ -12,7 +12,11 @@ public class EmployeeMapper {
         dto.setName(employee.getName());
         dto.setEmail(employee.getEmail());
         dto.setPhone(employee.getPhone());
-        dto.setEmp_id(employee.getEmp_id());
+        dto.setEmp_id(employee.getEmpId());
+        dto.setDepartment(employee.getDepartment());
+        dto.setUserProfile(employee.getUserProfile());
+        employee.setPassword(dto.getPassword()); // now dto has password
+
         return dto;
     }
     public static List<EmployeeDto> EmployeesToEmployeeDtoList(List<Employees> employeesList) {
@@ -25,9 +29,11 @@ public class EmployeeMapper {
         Employees employee = new Employees();
         employee.setName(dto.getName());
         employee.setEmail(dto.getEmail());
+        employee.setPassword(dto.getPassword());
+        employee.setDepartment(dto.getDepartment());
+        employee.setUserProfile(dto.getUserProfile());
         employee.setPhone(dto.getPhone());
-        employee.setEmp_id(dto.getEmp_id());
-        // Password is not included in DTO for security
+        employee.setEmpId(dto.getEmp_id());
         return employee;
     }
 }

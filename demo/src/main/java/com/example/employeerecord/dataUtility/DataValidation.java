@@ -1,13 +1,14 @@
 package com.example.employeerecord.dataUtility;
 
 import com.example.employeerecord.dao.Employees;
+import com.example.employeerecord.dto.EmployeeDto;
 import com.example.employeerecord.repository.EmployeeRepo;
 import com.example.employeerecord.dao.Employees;
 
 import java.util.regex.Pattern;
 
 public class DataValidation {
-    public static String validateData(Employees employee, EmployeeRepo emprepo,String id){
+    public static String validateData(EmployeeDto employee, EmployeeRepo emprepo, String id){
         String error="";
         String emailRegex="^[a-zA-Z0-9._+-]+@[a-zA-Z._]+\\.[a-zA-Z]{2,}";
         String phoneRegex="^[6-9][0-9]{9}$";
@@ -16,13 +17,19 @@ public class DataValidation {
 
         error=!Pattern.matches(emailRegex,employee.getEmail())?error+"Invalid Email address\n":error;
         error=employee.getEmail()==null?error+"Email is required\n":error;
-        error=emprepo.existsByEmail(employee.getEmail())?"Email id already exists\n":error;
+        Employees existing= emprepo.findByEmail(employee.getEmail());
+        error=existing != null && !String.valueOf(existing.getEmpId()).equals(id)?
+                error+"Email id already exists\n":error;
 
         error=employee.getPhone()==null?error+"Phone number is required\n":error;
         error=!Pattern.matches(phoneRegex,employee.getPhone())?error+"Invalid phone number\n":error;
+        //Password validation with null-safe check
+        if (employee.getPassword() == null || employee.getPassword().length() < 8) {
+            error += "Password is required and must be of length 8\n";
+        }
 
-        error= employee.getPassword().length()<8 ?error+"Password is required and must be of length 8\n":error;
-        return error;
+       //error= employee.getPassword().length()<8 ?error+"Password is required and must be of length 8\n":error;
+       return error;
     }
 }
 

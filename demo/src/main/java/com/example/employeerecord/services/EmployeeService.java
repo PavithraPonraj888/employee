@@ -5,10 +5,10 @@ import com.example.employeerecord.dto.EmployeeDto;
 
 import java.util.List;
 
-    public interface EmpService {
+    public interface EmployeeService {
 
 
-        EmployeeDto CreateEmployee(EmployeeDto employee);
+        EmployeeDto createEmployee(EmployeeDto employee);
 
 
         EmployeeDto getEmployeeById(Long empId);

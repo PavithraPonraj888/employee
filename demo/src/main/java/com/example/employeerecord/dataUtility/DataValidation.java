@@ -1,10 +1,11 @@
 package com.example.employeerecord.dataUtility;
 
+import com.example.employeerecord.Exception.EmloyeeNotFoundException;
 import com.example.employeerecord.dao.Employees;
 import com.example.employeerecord.dto.EmployeeDto;
 import com.example.employeerecord.repository.EmployeeRepo;
 import com.example.employeerecord.dao.Employees;
-
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class DataValidation {
@@ -17,7 +18,8 @@ public class DataValidation {
 
         error=!Pattern.matches(emailRegex,employee.getEmail())?error+"Invalid Email address\n":error;
         error=employee.getEmail()==null?error+"Email is required\n":error;
-        Employees existing= emprepo.findByEmail(employee.getEmail());
+        Employees existing= emprepo.findByEmail(employee.getEmail())
+                .orElse(null);
         error=existing != null && !String.valueOf(existing.getEmpId()).equals(id)?
                 error+"Email id already exists\n":error;
 

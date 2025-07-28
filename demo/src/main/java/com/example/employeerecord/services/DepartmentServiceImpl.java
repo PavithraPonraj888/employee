@@ -1,7 +1,6 @@
 package com.example.employeerecord.services;
 
 import com.example.employeerecord.dao.Department;
-import com.example.employeerecord.dao.UserProfile;
 import com.example.employeerecord.dto.DepartmentDto;
 import com.example.employeerecord.mapper.DepartmentMapper;
 import com.example.employeerecord.repository.DepartmentRepo;
@@ -11,7 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class DeptServiceImplementation implements DeptService{
+public class DepartmentServiceImpl implements DepartmentService {
     @Autowired
     private DepartmentRepo deptRepo;
     @Override

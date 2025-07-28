@@ -13,15 +13,16 @@ import com.example.employeerecord.repository.EmployeeRepo;
 import com.example.employeerecord.repository.ProjectRepo;
 import com.example.employeerecord.repository.UserProfileRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.example.employeerecord.dataUtility.DataValidation.validateData;
 
 @Service
-public class EmpServiceI implements EmpService {
+public class EmployeeServiceImpl implements EmployeeService {
     @Autowired
     private EmployeeRepo emprepo;
     @Autowired
@@ -32,30 +33,47 @@ public class EmpServiceI implements EmpService {
     private UserProfileRepo profileRepo;
     @Autowired
     private ProjectRepo projectRepo;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
-    public EmployeeDto CreateEmployee(EmployeeDto employee) {
+    public EmployeeDto createEmployee(EmployeeDto employeeDto) {
+        // 1. Validate and set department
         Department dept = null;
-
-        if (employee.getDepartment() != null && employee.getDepartment().getDept_id() != 0) {
-            dept = departmentRepo.findById(employee.getDepartment().getDept_id())
+        if (employeeDto.getDepartment() != null && employeeDto.getDepartment().getDept_id() != 0) {
+            dept = departmentRepo.findById(employeeDto.getDepartment().getDept_id())
                     .orElseThrow(() -> new DepartmentNotFoundException(
-                            "Department does not exist with id: " + employee.getDepartment().getDept_id()));
+                            "Department does not exist with id: " + employeeDto.getDepartment().getDept_id()));
         }
+        employeeDto.setDepartment(dept);
 
-        employee.setDepartment(dept);
-        String error = validateData(employee, emprepo, null);
+        // 2. Validate input
+        String error = validateData(employeeDto, emprepo, null);
         if (!error.isEmpty()) {
             throw new InvalidDataException(error);
         }
-        Employees emp = emprepo.save(EmployeeMapper.toEntity(employee));
-        if(employee.getUserProfile()!=null){
-            userProfileService.createProfile(emp.getEmpId(), employee.getUserProfile());}
+
+        // 3. Hash the password (forcefully, assume it's raw)
+        String rawPassword = employeeDto.getPassword();
+        String hashedPassword = passwordEncoder.encode(rawPassword);
+        employeeDto.setPassword(hashedPassword);
+
+        // 4. Save employee
+        Employees emp = emprepo.save(EmployeeMapper.toEntity(employeeDto));
+
+        // 5. Create user profile if present
+        if (employeeDto.getUserProfile() != null) {
+            userProfileService.createProfile(emp.getEmpId(), employeeDto.getUserProfile());
+        }
+
+        // 6. Return saved employee DTO
         return EmployeeMapper.toDto(emp);
     }
 
 
 
-    public List<EmployeeDto> addAllEmployees(List<Employees> employeesList){
+
+    /* public List<EmployeeDto> addAllEmployees(List<Employees> employeesList){
         ArrayList<String> Errors=new ArrayList<>();
         for(int i=0;i<employeesList.size();i++){
             String error= validateData(EmployeeMapper.toDto(employeesList.get(i)),emprepo,null);
@@ -67,8 +85,19 @@ public class EmpServiceI implements EmpService {
         }
         emprepo.saveAll(employeesList);
         return EmployeeMapper.EmployeesToEmployeeDtoList(employeesList);
-    }
+    }*/
+   public List<EmployeeDto> addAllEmployees(List<Employees> employeesList) {
+       for (Employees emp : employeesList) {
+           // Always assume raw password and hash it
+           System.out.println("Hashing password for: " + emp.getEmail());
+           emp.setPassword(passwordEncoder.encode(emp.getPassword()));
+       }
 
+       List<Employees> saved = emprepo.saveAll(employeesList);
+       return saved.stream()
+               .map(EmployeeMapper::toDto)
+               .collect(Collectors.toList());
+   }
 
 
     public EmployeeDto getEmployeeById(Long id){
@@ -94,7 +123,8 @@ public class EmpServiceI implements EmpService {
         existingData.setName(updatedData.getName());
         existingData.setEmail(updatedData.getEmail());
         existingData.setPhone(updatedData.getPhone());
-        existingData.setPassword(updatedData.getPassword());
+        existingData.setPassword(passwordEncoder.encode(updatedData.getPassword()));
+
 
         String error = validateData(EmployeeMapper.toDto(existingData), emprepo, String.valueOf(existingData.getEmpId()));
         if (!error.isEmpty()) {

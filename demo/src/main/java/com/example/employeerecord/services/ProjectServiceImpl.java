@@ -4,14 +4,13 @@ import com.example.employeerecord.dao.Employees;
 import com.example.employeerecord.dao.Project;
 import com.example.employeerecord.exceptions.ResourceNotFoundException;
 import com.example.employeerecord.repository.ProjectRepo;
-import com.example.employeerecord.services.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class ProjServiceImplementation implements ProjectService {
+public class ProjectServiceImpl implements ProjectService {
     @Autowired
     private ProjectRepo projectRepo;
 

@@ -1,5 +1,7 @@
 package com.example.employeerecord.dao;
 import com.example.employeerecord.dao.Employees;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDate;
@@ -7,6 +9,7 @@ import java.util.List;
 
 @Entity
 @Data
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "projId")
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
